@@ -487,7 +487,7 @@ druid:
     image:
       pullPolicy: IfNotPresent
     auth:
-      secretName: minio-secret
+      secretName: s3-auth
     # Leave access_key and secret_key empty to auto-generate values.
     # access_key:
     # secret_key:
@@ -711,6 +711,8 @@ druid:
 # Settings for RabbitMQ - https://github.com/bitnami/charts/tree/master/bitnami/rabbitmq
 rabbitmq:
   enabled: true
+  networkPolicy.enabled: false
+  msgTopologyOperator.skipCreateAdmissionWebhookConfig: true
   host: rabbitmq
   fullnameOverride: rabbitmq
   image:
@@ -757,6 +759,7 @@ rabbitmq:
     username: user
     # creates a secret for RabbitMQ - this is a custom field
     secretName: rabbitmq-secret
+    securePassword: false
     existingPasswordSecret: rabbitmq-secret
     existingErlangSecret: rabbitmq-secret
     # Set username/password if you don't them to be randomly generated or if you're using an existing RabbitMQ installation.
@@ -889,3 +892,80 @@ mysql:
   commonAnnotations:
     helm.sh/hook: pre-install
     helm.sh/hook-weight: "-10"
+
+affinity: ""
+
+seaweedfs:
+  # commonLabels: seaweedfs
+  fullnameOverride: seaweedfs
+  serviceAccount:
+    create: false
+  mariadb:
+    enabled: false
+  master:
+      networkPolicy:
+        enabled: false
+      pdb:
+        create: false
+        maxUnavailable: ""
+        minAvailable: ""
+  filer:
+      s3:
+        enabled: true
+      # config: |
+      #   [leveldb2]
+      #   enabled = true
+      #   dir = "/etc/filerldb2"
+      # extraVolumeMounts:
+      #   - mountPath: /etc/filerldb2
+      #     name: filerldb2
+      #     subPath: filerldb2
+      #     readOnly: false
+      networkPolicy:
+        enabled: false
+      pdb:
+        create: false
+        maxUnavailable: ""
+        minAvailable: ""
+      #existingConfigmap: seaweedfs-filer-config
+      # initContainers:
+      #   - name: init-cont
+      #     image: busybox:1.31
+      #     command: ['sh', '-c', 'sleep 3600']
+  volume:
+      networkPolicy:
+        enabled: false
+      pdb:
+        create: false
+        maxUnavailable: ""
+        minAvailable: ""
+  s3:
+      enabled: true
+      networkPolicy:
+        enabled: false
+      pdb:
+        create: false
+        maxUnavailable: ""
+        minAvailable: ""
+      auth:
+        enabled: true
+        adminAccessKeyId: 3gjYN0fXUV
+        adminSecretAccessKey: ohiWWEOBb77qf1Zlk9jqWqXfN92nUmpGUxC9rzyd
+        # readAccessKeyId: 3gjYN0fXUV
+        # readSecretAccessKey: ohiWWEOBb77qf1Zlk9jqWqXfN92nUmpGUxC9rzyd
+        # existingSecret: minio-secret
+        # existingConfigSecretKey: s3-config
+  externalDatabase:
+    enabled: true
+    store: mariadb
+    host: cloudsql-proxy.apim.broadcom.net
+    port: 3306
+    user: admin
+    database: fs_sm895441_druid
+    password: 7layer
+    waitForDatabaseEnabled: true
+    initDatabaseJob:
+      enabled: false
+    annotations:
+        helm.sh/hook: post-install
+        helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
