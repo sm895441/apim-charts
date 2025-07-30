@@ -10,7 +10,7 @@ spec:
     #image: alpine:latest
     #command: ["sh", "-c", "while true; do echo Hello from Alpine!; sleep 5; done"]
     image: rclone/rclone:master
-    command: ["rclone", "--stats-one-line", "--stats", "2s", "--progress", "copy", "swfs:/api-metrics", "minio:/api-metrics"]
+    command: ["rclone", "--stats-one-line", "--stats", "2s", "-vv", "--progress", "copy", "minio:/api-metrics", "swfs:/api-metrics"]
     # args:
     #   - --stats-one-line --stats 2s
     #   - copy
@@ -20,6 +20,11 @@ spec:
           - mountPath: /config/rclone/rclone.conf
             name: data-copy-config
             subPath: rclone.config
+    resources:
+      requests:
+        memory: 4Gi
+      limits:
+        memory: 4Gi
   volumes:
       - configMap:
           #defaultMode: 777
