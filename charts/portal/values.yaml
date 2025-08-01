@@ -896,13 +896,13 @@ mysql:
 affinity: ""
 
 seaweedfs:
-  # commonLabels: seaweedfs
   fullnameOverride: seaweedfs
   serviceAccount:
     create: false
   mariadb:
     enabled: false
   master:
+      volumeSizeLimitMB: 1024
       networkPolicy:
         enabled: false
       pdb:
@@ -912,26 +912,12 @@ seaweedfs:
   filer:
       s3:
         enabled: true
-      # config: |
-      #   [leveldb2]
-      #   enabled = true
-      #   dir = "/etc/filerldb2"
-      # extraVolumeMounts:
-      #   - mountPath: /etc/filerldb2
-      #     name: filerldb2
-      #     subPath: filerldb2
-      #     readOnly: false
       networkPolicy:
         enabled: false
       pdb:
         create: false
         maxUnavailable: ""
         minAvailable: ""
-      #existingConfigmap: seaweedfs-filer-config
-      # initContainers:
-      #   - name: init-cont
-      #     image: busybox:1.31
-      #     command: ['sh', '-c', 'sleep 3600']
   volume:
       networkPolicy:
         enabled: false
@@ -939,6 +925,15 @@ seaweedfs:
         create: false
         maxUnavailable: ""
         minAvailable: ""
+      dataVolumes:
+        - name: data-0
+          mountPath: /data-0
+          maxVolumes: 40
+          persistence:
+            accessModes:
+              - ReadWriteOnce
+            enabled: true
+            size: 40Gi
   s3:
       enabled: true
       networkPolicy:
@@ -951,8 +946,8 @@ seaweedfs:
         enabled: true
         adminAccessKeyId: 3gjYN0fXUV
         adminSecretAccessKey: ohiWWEOBb77qf1Zlk9jqWqXfN92nUmpGUxC9rzyd
-        # readAccessKeyId: 3gjYN0fXUV
-        # readSecretAccessKey: ohiWWEOBb77qf1Zlk9jqWqXfN92nUmpGUxC9rzyd
+        readAccessKeyId: 3gjYN0fXUW
+        readSecretAccessKey: ohiWWEOBb77qf1Zlk9jqWqXfN92nUmpGUxC9rzyD
         # existingSecret: minio-secret
         # existingConfigSecretKey: s3-config
   externalDatabase:
@@ -963,6 +958,7 @@ seaweedfs:
     user: admin
     database: fs_sm895441_druid
     password: 7layer
+    #existingSecret: database-secret
     waitForDatabaseEnabled: true
     initDatabaseJob:
       enabled: false

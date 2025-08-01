@@ -16,6 +16,7 @@ data:
   COORDINATOR_HOST: {{ .Values.coordinator.hostname }}
   COORDINATOR_PORT: {{ .Values.coordinator.port | quote }}
   MINIO_URL: http://seaweedfs-s3:8333
+  minio.health.url: http://seaweedfs-s3:8333/status
   MINIO_BUCKET: {{ .Values.minio.bucketName }}
   PARTITION_COUNT: "{{ .Values.ingestion.config.partitionCount }}"
   REPLICATION_COUNT: "{{ .Values.kafka.replicaCount }}"

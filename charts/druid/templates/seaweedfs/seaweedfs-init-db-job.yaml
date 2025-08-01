@@ -66,24 +66,28 @@ spec:
                    PRIMARY KEY (dirhash, name)
                  ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
                  EOF
-            
           env:
-            - name: DATABASE_HOST
-              value: cloudsql-proxy.apim.broadcom.net
-            - name: DATABASE_PORT_NUMBER
-              value: '3306'
-            - name: DATABASE_NAME
-              value: fs_sm895441_druid
-            - name: DATABASE_USER
-              value: admin
-            - name: PASSWORD
-              value: 7layer
-            #   valueFrom:
-            #     secretKeyRef:
-            #       name: {{ .Values.global.databaseSecret }}
-            #  {{ if eq .Values.global.databaseType "mysql" }}
-            #       key: mysql-password
-            #  {{ end }}
+           - name: DATABASE_HOST
+         {{ if .Values.global.setupDemoDatabase }}
+             value: {{ .Release.Name }}-mysql-headless
+        {{ else }}
+             value: {{ .Values.global.databaseHost | quote }}
+        {{ end }}
+           - name: DATABASE_NAME
+             value: {{ include "druid-db-name" . | quote }}
+           - name: PASSWORD
+             valueFrom:
+               secretKeyRef:
+                 name: {{ .Values.global.databaseSecret }}
+            {{ if eq .Values.global.databaseType "mysql" }}
+                 key: mysql-password
+            {{ end }}
+           - name: DATABASE_PORT_NUMBER
+             value: {{ include "database-port" . | quote }}
+           - name: DATABASE_USER
+             value: {{ required "Please fill in databaseUsername in values.yaml" .Values.global.databaseUsername | quote }}
+           - name: DATABASE_TYPE
+             value: {{ required "Please fill in databaseType in values.yaml" .Values.global.databaseType | quote }}
           resources:
             limits:
               cpu: 375m
@@ -93,8 +97,4 @@ spec:
               cpu: 250m
               ephemeral-storage: 50Mi
               memory: 256Mi
-          volumeMounts:
-            - name: empty-dir
-              mountPath: /tmp
-              subPath: tmp-dir
       restartPolicy: "OnFailure"
