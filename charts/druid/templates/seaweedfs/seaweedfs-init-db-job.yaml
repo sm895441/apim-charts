@@ -1,3 +1,4 @@
+{{- if .Values.seaweedfs.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -9,7 +10,7 @@ metadata:
     heritage: {{ .Release.Service }}
   annotations:
     "helm.sh/hook": post-install,post-upgrade
-    "helm.sh/hook-weight": "-4"
+    "helm.sh/hook-weight": "-5"
 spec:
   template:
     metadata:
@@ -98,3 +99,4 @@ spec:
               ephemeral-storage: 50Mi
               memory: 256Mi
       restartPolicy: "OnFailure"
+{{ end }}

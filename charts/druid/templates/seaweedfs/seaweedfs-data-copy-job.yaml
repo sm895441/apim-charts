@@ -1,3 +1,4 @@
+{{- if .Values.seaweedfs.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -62,3 +63,4 @@ spec:
             requests:
               memory: 4Gi
       restartPolicy: "OnFailure"
+{{ end }}

@@ -493,6 +493,10 @@ druid:
     # secret_key:
     cloudStorage: false
     bucketName: api-metrics
+  
+  seaweedfs:
+    enabled: false
+    migrateData: false
 
 ## Use minio as Amazon S3 (Simple Storage Service) gateway
 ## https://docs.minio.io/docs/minio-gateway-for-s3
