@@ -11,6 +11,10 @@ This Chart deploys the Layer7 API Developer Portal on a Kubernetes Cluster using
 - Upgrade to 2.3.16 is only supported from 2.3.10 chart version as per the Portal version.
 - Updated the Openshift installation procedure through an example. Refer examples/portal folder.
 
+## 2.3.16 General Updates
+- This new version of the chart supports API Portal 5.3.3
+- Upgrade to 2.3.15 is only supported from 2.3.20 chart version as per the Portal version.
+- 
 ## 2.3.15 General Updates
 - Adding pod annotations to all the jobs in portal.
 - Upgrade to 2.3.15 is only supported from 2.3.9 chart version as per the Portal version.
