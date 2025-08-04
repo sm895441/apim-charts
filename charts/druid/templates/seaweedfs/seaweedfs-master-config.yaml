@@ -1,0 +1,19 @@
+{{- if or .Values.seaweedfs.master.enabled .Values.seaweedfs.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: seaweedfs-master-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: seaweedfs
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- if .Values.seaweedfs.master.annotations }}
+  annotations:
+    {{- toYaml .Values.seaweedfs.master.annotations | nindent 4 }}
+{{- end }}
+data:
+  master.toml: |-
+    {{ .Values.seaweedfs.master.config | nindent 4 }}
+{{- end }}

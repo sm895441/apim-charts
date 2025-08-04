@@ -493,10 +493,6 @@ druid:
     # secret_key:
     cloudStorage: false
     bucketName: api-metrics
-  
-  seaweedfs:
-    enabled: false
-    migrateData: false
 
 ## Use minio as Amazon S3 (Simple Storage Service) gateway
 ## https://docs.minio.io/docs/minio-gateway-for-s3
@@ -711,6 +707,173 @@ druid:
     historical: druid:5.3.3
     kafka: kafka:5.3.3
     ingestion: ingestion-server:5.3.3
+    seaweedfs: seaweedfs:POC_Seaweed_distroless
+
+
+  seaweedfs:
+    enabled: true
+    migrateData: false
+    imageOverride: null
+    restartPolicy: Always
+    loggingLevel: 1
+    replicas: 1
+  
+    # Core configuration
+    idleTimeout: 30  # Connection idle seconds
+    dataCenter: ""  # Current volume server's data center name
+    rack: ""  # Current volume server's rack name
+    whiteList: ""  # Comma separated IP addresses having write permission
+    disableHttp: false  # Disable HTTP requests, only gRPC operations are allowed
+    metricsPort: 9324  # Prometheus metrics listen port
+    metricsIp: ""  # Metrics listen IP. If empty, defaults to bindAddress
+    loggingOverrideLevel: null  # Override logging level
+  
+    # Service configuration
+    s3:
+      enabled: true  # Whether to enable S3 gateway
+      port: 8333
+      enableAuth: true
+      existingConfigSecret: seaweedfs-s3-secret
+    sftp:
+      enabled: false  # Whether to enable SFTP server
+
+    filer:
+      port: 8888
+      grpcPort: 18888
+      defaultReplicaPlacement: "000"
+      dirListLimit: 100000
+      s3:
+        enableAuth: true
+
+    volume:
+      port: 8080
+      grpcPort: 18080
+      compactionMBps: 50
+      minFreeSpacePercent: 7
+      dataDirs:
+        - name: data-0
+          type: "persistentVolumeClaim"
+          size: "50Gi"
+          maxVolumes: 50
+
+    master:
+      port: 9333
+      grpcPort: 19333
+      config: ""
+      volumeSizeLimitMB: 1024
+  
+    # Service settings
+    service:
+      annotations: {}  # Annotations for the service
+      type: ClusterIP  # Service type (ClusterIP, NodePort, LoadBalancer)
+  
+    # Storage configuration
+    data:
+      type: "emptyDir"  # Options: "hostPath", "persistentVolumeClaim", "emptyDir"
+      hostPathPrefix: /mnt/data  # Path prefix for hostPath volumes
+      claimName: seaweedfs-data-pvc  # Name of the PVC to use
+      size: ""  # Size of the PVC
+      storageClass: ""  # Storage class for the PVC
+  
+    # Health checks
+    readinessProbe:
+      enabled: true
+      httpGet:
+        path: /cluster/status
+        port: 9333
+      scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 15
+      successThreshold: 1
+      failureThreshold: 3
+      timeoutSeconds: 5
+  
+    livenessProbe:
+      enabled: true
+      httpGet:
+        path: /cluster/status
+        port: 9333
+      scheme: HTTP
+      initialDelaySeconds: 20
+      periodSeconds: 30
+      successThreshold: 1
+      failureThreshold: 5
+      timeoutSeconds: 5
+  
+    # Additional resources
+    extraEnvironmentVars: {}  # Additional environment variables
+    extraVolumeMounts: ""  # Additional volume mounts
+    extraVolumes: ""  # Additional volumes
+    initContainers: ""  # Init containers
+    sidecars: ""  # Sidecar containers
+    annotations: {}  # Annotations for the deployment
+    podAnnotations: {}  # Annotations for the pods
+    podLabels: {}  # Labels for the pods
+  
+    # Scheduling configuration
+    # Affinity Settings
+    # Commenting out or setting as empty the affinity variable, will allow
+    # deployment to single node services such as Minikube
+    # affinity: |
+    #   podAntiAffinity:
+    #     requiredDuringSchedulingIgnoredDuringExecution:
+    #       - labelSelector:
+    #           matchLabels:
+    #             app.kubernetes.io/name: seaweedfs"
+    #             app.kubernetes.io/instance: {{ .Release.Name }}
+    #             app.kubernetes.io/component: master
+    #         topologyKey: kubernetes.io/hostname
+  
+    # Topology Spread Constraints Settings
+    # This should map directly to the value of the topologySpreadConstraints
+    # for a PodSpec. By Default no constraints are set.
+    topologySpreadConstraints: ""
+  
+    # Toleration Settings for master pods
+    # This should be a multi-line string matching the Toleration array
+    # in a PodSpec.
+    tolerations: ""
+  
+    # nodeSelector labels for master pod assignment, formatted as a muli-line string.
+    # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+    nodeSelector: |
+      kubernetes.io/arch: amd64
+  
+    # Used to assign priority to master pods
+    # ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+    priorityClassName: ""
+  
+    # Used to assign a service account.
+    # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+    serviceAccountName: ""
+  
+    # Configure security context for Pod
+    # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+    # Example:
+    # podSecurityContext:
+    #   enabled: true
+    #   runAsUser: 1000
+    #   runAsGroup: 3000
+    #   fsGroup: 2000
+    podSecurityContext: {}
+  
+    # Configure security context for Container
+    # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+    # Example:
+    # containerSecurityContext:
+    #   enabled: true
+    #   runAsUser: 2000
+    #   allowPrivilegeEscalation: false
+    containerSecurityContext: {}
+  
+    # Resource management
+    resources:
+      limits:
+        cpu: "2"
+        memory: "2Gi"
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
 
 # Settings for RabbitMQ - https://github.com/bitnami/charts/tree/master/bitnami/rabbitmq
 rabbitmq:
@@ -898,6 +1061,7 @@ mysql:
     helm.sh/hook-weight: "-10"
 
 affinity: ""
+
 
 seaweedfs:
   fullnameOverride: seaweedfs
