@@ -119,8 +119,30 @@ spec:
               {{- end }}
             {{- end }}
             {{- end }}
+            - name: WEED_MYSQL_ENABLED
+              value: "true"
+            - name: WEED_MYSQL_DATABASE
+              value: {{ include "druid-db-name" . | quote }}
+            - name: WEED_MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.databaseSecret }}
+            {{ if eq .Values.global.databaseType "mysql" }}
+                  key: mysql-password
+            {{ end }}
+            - name: WEED_MYSQL_CONNECTION_MAX_IDLE
+              value: "5"
+            - name: WEED_MYSQL_CONNECTION_MAX_OPEN
+              value: "75"
+            - name: WEED_MYSQL_CONNECTION_MAX_LIFETIME_SECONDS
+              value: "600"
+            - name: WEED_MYSQL_INTERPOLATEPARAMS
+              value: "true"
+          envFrom:
+          - configMapRef:
+              name: seaweedfs-config
           command:
-            - "/bin/sh"
+            - "/bin/bash"
             - "-ec"
             - |
               /opt/bitnami/seaweedfs/bin/weed \
@@ -406,7 +428,8 @@ spec:
         {{- end }}
         - name: master-config
           configMap:
-            name: seaweedfs-master-config
+            name: seaweedfs-config
+            path: master.toml
         {{- if .Values.global.enableSecurity }}
         - name: security-config
           configMap:
