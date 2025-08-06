@@ -1,4 +1,4 @@
-{{- if or .Values.seaweedfs.master.enabled .Values.seaweedfs.enabled }}
+{{ if (eq .Values.seaweedfs.enabled true) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -25,5 +25,6 @@ data:
   WEED_MYSQL_PORT: {{ include "database-port" . | quote }}
   DATABASE_USE_SSL: {{ .Values.global.databaseUseSSL | quote }}
   DATABASE_REQUIRE_SSL: {{ .Values.global.databaseRequireSSL | quote }}
-{{- end }}
   WEED_MYSQL_USERNAME: {{ required "Please fill in databaseUsername in values.yaml" .Values.global.databaseUsername | quote }}
+{{ end }}
+  

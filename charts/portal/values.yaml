@@ -707,11 +707,11 @@ druid:
     historical: druid:5.3.3
     kafka: kafka:5.3.3
     ingestion: ingestion-server:5.3.3
-    seaweedfs: seaweedfs:POC_Seaweed_distroless
+    seaweedfs: seaweedfs:5.3.3
 
 
   seaweedfs:
-    enabled: true
+    enabled: false
     migrateData: false
     imageOverride: null
     restartPolicy: Always
@@ -1059,77 +1059,3 @@ mysql:
   commonAnnotations:
     helm.sh/hook: pre-install
     helm.sh/hook-weight: "-10"
-
-affinity: ""
-
-
-seaweedfs:
-  fullnameOverride: seaweedfs
-  serviceAccount:
-    create: false
-  mariadb:
-    enabled: false
-  master:
-      volumeSizeLimitMB: 1024
-      networkPolicy:
-        enabled: false
-      pdb:
-        create: false
-        maxUnavailable: ""
-        minAvailable: ""
-  filer:
-      s3:
-        enabled: true
-      networkPolicy:
-        enabled: false
-      pdb:
-        create: false
-        maxUnavailable: ""
-        minAvailable: ""
-  volume:
-      networkPolicy:
-        enabled: false
-      pdb:
-        create: false
-        maxUnavailable: ""
-        minAvailable: ""
-      dataVolumes:
-        - name: data-0
-          mountPath: /data-0
-          maxVolumes: 40
-          persistence:
-            accessModes:
-              - ReadWriteOnce
-            enabled: true
-            size: 40Gi
-  s3:
-      enabled: true
-      networkPolicy:
-        enabled: false
-      pdb:
-        create: false
-        maxUnavailable: ""
-        minAvailable: ""
-      auth:
-        enabled: true
-        adminAccessKeyId: 3gjYN0fXUV
-        adminSecretAccessKey: ohiWWEOBb77qf1Zlk9jqWqXfN92nUmpGUxC9rzyd
-        readAccessKeyId: 3gjYN0fXUW
-        readSecretAccessKey: ohiWWEOBb77qf1Zlk9jqWqXfN92nUmpGUxC9rzyD
-        # existingSecret: minio-secret
-        # existingConfigSecretKey: s3-config
-  externalDatabase:
-    enabled: true
-    store: mariadb
-    host: cloudsql-proxy.apim.broadcom.net
-    port: 3306
-    user: admin
-    database: fs_sm895441_druid
-    password: 7layer
-    #existingSecret: database-secret
-    waitForDatabaseEnabled: true
-    initDatabaseJob:
-      enabled: false
-    annotations:
-        helm.sh/hook: post-install
-        helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
