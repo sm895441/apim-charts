@@ -16,6 +16,8 @@ metadata:
 data:
   master.toml: |-
     {{ .Values.seaweedfs.master.config | nindent 4 }}
+  filer.toml: |-
+    {{ .Values.seaweedfs.filer.config | nindent 4 }}
   DATABASE_TYPE: {{ required "Please fill in databaseType in values.yaml" .Values.global.databaseType | quote }}
 {{ if .Values.global.setupDemoDatabase}}
   WEED_MYSQL_HOSTNAME: {{ .Release.Name }}-mysql-headless

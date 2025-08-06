@@ -307,6 +307,9 @@ spec:
               mountPath: /etc/seaweedfs/master.toml
               subPath: master.toml
               readOnly: true
+            - name: filer-config
+              mountPath: /etc/seaweedfs/filer.toml
+              subPath: filer.toml
             {{- if .Values.global.enableSecurity }}
             - name: security-config
               mountPath: /etc/seaweedfs/security.toml
@@ -430,6 +433,10 @@ spec:
           configMap:
             name: seaweedfs-config
             path: master.toml
+        - name: filer-config
+          configMap:
+            name: seaweedfs-config
+            path: filer.toml
         {{- if .Values.global.enableSecurity }}
         - name: security-config
           configMap:
